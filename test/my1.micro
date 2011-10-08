@@ -1,0 +1,29 @@
+PROGRAM my1
+BEGIN
+	INT a,b,c,d,e,f;
+	--a := 1;
+	--b := 2;
+	--c := 4;
+	--d := a + b + c;
+	--e := (c + d);
+	--f := d + e;
+
+	--READ(a);
+	--WRITE(e);
+
+	FUNCTION VOID main() BEGIN
+		FLOAT x,y;
+		x := 30;
+		y := (x + x);
+	        --INT a,b,c,d,e,f;
+       		a := 1;
+	        b := 2;
+	        c := 4;
+	        d := a + b + c;
+	        e := (c + d);
+       		f := d + e;
+
+		READ(a,b,c);
+		WRITE(d,e,f);
+	END
+END
