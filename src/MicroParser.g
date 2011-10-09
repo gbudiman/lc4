@@ -34,6 +34,7 @@ grammar MicroParser;
 
 	public String getType(String varName) {
 		Iterator mtc = symbolTable.iterator();
+		System.out.println("Searching for " + varName);
 		while (mtc.hasNext()) {
 			mSymbol ese = (mSymbol) mtc.next();
 			if (ese.getName().equals(varName)) {
@@ -42,6 +43,7 @@ grammar MicroParser;
 		}
 
 		Iterator mti = masterTable.iterator();
+		System.out.println("Searching global for " + varName);
 		while (mti.hasNext()) {
 			msTable cmte = (msTable) mti.next();
 			if (cmte.scope.equals("__global")) {
@@ -66,6 +68,15 @@ program 	: 'PROGRAM' id 'BEGIN' pgm_body 'END'
 	tms.attachTable(symbolTable);
 	masterTable.add(tms);
 
+	// IR table
+	System.out.println("===================\nIR Table");
+	Iterator irti = irTable.iterator();
+	while (irti.hasNext()) {
+		System.out.println(irti.next());
+	}
+
+	// Symbol table
+	System.out.println("===================");
 	Iterator mti = masterTable.iterator();
 	while (mti.hasNext()) {
 		msTable cmte = (msTable) mti.next();
@@ -88,6 +99,7 @@ program 	: 'PROGRAM' id 'BEGIN' pgm_body 'END'
 		}
 		System.out.println();
 	}
+	// End Symbol Table
 
 };
 id		: IDENTIFIER;
@@ -154,38 +166,127 @@ stmt		: assign_stmt | read_stmt | write_stmt | return_stmt | if_stmt | do_stmt;
 /* Basic Statement */
 assign_stmt	: assign_expr ';';
 assign_expr	: id ':=' expr {
-	System.out.println("D Assign");
+	//System.out.println("D Assign" + );
+	irTable.add(ir.store($expr.text, $id.text, getType($id.text)));
 }
 ;
 read_stmt	: 'READ' '(' id_list ')' ';' {
+	Stack<String> ds = new Stack<String>();
 	for (String i : $id_list.stringList) {
-		System.out.println(i + " " + getType(i));
+		//System.out.println(i + " " + getType(i));
+		ds.push(ir.rw(i, "READ", getType(i)));
+		//irTable.add(ir.rw(i, "READ", getType(i)));
+	}
+	while (!ds.empty()) {
+		irTable.add(ds.pop());
 	}
 };
 write_stmt	: 'WRITE' '(' id_list ')' ';' {
+	Stack<String> ds = new Stack<String>();
 	for (String i : $id_list.stringList) {
-		System.out.println(i + " " + getType(i));
+		//System.out.println(i + " " + getType(i));
+		ds.push(ir.rw(i, "WRITE", getType(i)));
+		//irTable.add(ir.rw(i, "WRITE", getType(i)));
+	}
+	while (!ds.empty()) {
+		irTable.add(ds.pop());
 	}
 };
 return_stmt	: 'RETURN' expr ';';
 /* Expressions */
-expr		: factor expr_tail;
-expr_tail	: addop factor expr_tail | ;
-factor		: postfix_expr factor_tail;
-factor_tail	: mulop postfix_expr factor_tail | ;
-postfix_expr	: primary | call_expr;
-call_expr	: id '(' expr_list? ')';
+expr returns [String temp]
+		: factor expr_tail {
+		char tempOp;
+		String tempVar;
+		String left = $factor.temp;
+
+		while(!$expr_tail.ops.isEmpty()) {
+			String result = ir.generate();
+			tempOp = $expr_tail.ops.removeFirst();
+			tempVar = $expr_tail.temp.removeFirst();
+			
+			if (tempOp == '+') {
+				irTable.add(ir.arithmetic(left, tempVar, result, '+', getType(tempVar)));
+			}
+			else if (tempOp == '-') {
+				irTable.add(ir.arithmetic(left, tempVar, result, '-', getType(tempVar)));
+			}
+			left = result;
+		}
+		$temp = left;
+		};
+expr_tail returns [LinkedList<Character> ops, LinkedList<String> temp]
+		: addop factor lambda=expr_tail {
+			$ops = $lambda.ops;
+			$temp = $lambda.temp;
+			$ops.addLast($addop.op);
+			$temp.addLast($factor.temp);
+		}
+		| {
+			$ops = new LinkedList();
+			$temp = new LinkedList();
+		};
+factor returns [String temp]
+		: postfix_expr factor_tail {
+		char tempOp;
+		String tempVar;
+		String left = $postfix_expr.temp;
+
+		while (!$factor_tail.ops.isEmpty()) {
+			String result = ir.generate();
+			tempOp = $factor_tail.ops.removeFirst();
+			tempVar = $factor_tail.temp.removeFirst();
+		
+			if (tempOp == '*') {
+				irTable.add(ir.arithmetic(left, tempVar, result, '*', getType(tempVar)));
+			}			
+			else if (tempOp == '/') {
+				irTable.add(ir.arithmetic(left, tempVar, result, '/', getType(tempVar)));
+			}
+			left = result;
+		}
+		$temp = left;
+		};
+factor_tail returns [LinkedList<Character> ops, LinkedList<String> temp]
+		: mulop postfix_expr lambda=factor_tail {
+			$ops = $lambda.ops;
+			$temp = $lambda.temp;
+			$ops.addLast($mulop.op);
+			$temp.addLast($postfix_expr.temp);
+		}
+		| {
+			$ops = new LinkedList();
+			$temp = new LinkedList();
+		};
+postfix_expr returns [String temp]
+		: primary {
+			$temp = $primary.temp;
+		} | call_expr;
+call_expr returns [String temp]
+		: id '(' expr_list? ')';
 expr_list	: expr expr_list_tail;
 expr_list_tail 	: ',' expr expr_list_tail |;
-primary returns [String text]
+primary returns [String temp]
 		: '(' expr ')' {
-			System.out.println("exprs");
+			$temp = $expr.temp;
 		}
-		| id 
-		| INTLITERAL 
-		| FLOATLITERAL;
-addop		: '+' | '-';
-mulop		: '*' | '/';
+		| id {
+			$temp = $id.text;
+		}
+		| INTLITERAL {
+			$temp = ir.generate();
+			symbolTable.add(new mSymbol($temp, "INT"));
+			irTable.add(ir.store($INTLITERAL.text, $temp, "INT"));
+		}
+		| FLOATLITERAL {
+			$temp = ir.generate();
+			symbolTable.add(new mSymbol($temp, "FLOAT"));
+			irTable.add(ir.store($FLOATLITERAL.text, $temp, "FLOAT"));
+		};
+addop returns [char op]
+		: '+' {$op = '+';} | '-' {$op = '-';};
+mulop returns [char op]
+		: '*' {$op = '*';} | '/' {$op = '/';};
 /* Comples Statemens and Condition */
 if_stmt		: 'IF' '(' cond ')' 'THEN' stmt_list else_part 'ENDIF';
 else_part	: ('ELSE' stmt_list)*;

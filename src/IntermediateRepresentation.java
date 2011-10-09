@@ -1,6 +1,10 @@
 class IntermediateRepresentation {
-
+	public int i = 0;
 	public IntermediateRepresentation() {
+	}
+
+	public String generate() {
+		return ("$T" + (i++));
 	}
 
 	public String arithmetic(String a, String b, String target, char op, String type) {

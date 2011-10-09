@@ -1,15 +1,6 @@
 PROGRAM my1
 BEGIN
 	INT a,b,c,d,e,f;
-	--a := 1;
-	--b := 2;
-	--c := 4;
-	--d := a + b + c;
-	--e := (c + d);
-	--f := d + e;
-
-	--READ(a);
-	--WRITE(e);
 
 	FUNCTION VOID main() BEGIN
 		FLOAT x,y;
@@ -25,5 +16,6 @@ BEGIN
 
 		READ(a,b,c);
 		WRITE(d,e,f);
+		READ(x, y);
 	END
 END
