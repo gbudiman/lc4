@@ -298,9 +298,9 @@ addop returns [char op]
 mulop returns [char op]
 		: '*' {$op = '*';} | '/' {$op = '/';};
 /* Comples Statemens and Condition */
-if_stmt		: 'IF' '(' cond ')' 'THEN' stmt_list else_part 'ENDIF';
-else_part	: ('ELSE' stmt_list)*;
-cond		: expr compop expr;
+if_stmt 	: 'IF' '(' cond ')' 'THEN' stmt_list else_part 'ENDIF';
+else_part	: 'ELSE' stmt_list | ;
+cond 		: expr compop expr;
 compop		: '<' | '>' | '=' | '!=';
 do_stmt		: 'DO' stmt_list 'WHILE' '(' cond ')' ';';
 

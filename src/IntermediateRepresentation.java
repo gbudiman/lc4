@@ -1,11 +1,38 @@
 class IntermediateRepresentation {
 	public int i = 0;
+	public int j = 0;
 	public IntermediateRepresentation() {
 	}
 
 	public String generate() {
 		return ("$T" + (i++));
 	}
+	
+	public String generateLabel() {
+		return ("label" + (j++));
+	}
+
+	/*public String conditional(String left, String op, String right, String label, String type) {
+		String condition = "";
+		if (op.equals("<")) {
+			condition += "LE";
+		}
+		else if (op.equals(">")) {
+			condition += "GE";
+		}
+		else if (op.equals("!=")) {
+			condition += "NE";
+		}
+
+		if (type.equals("INT")) {
+			condition += " ";
+		}
+		else if (type.equals("FLOAT")) {
+			condition += "F ";
+		}
+
+		return (condition + left + ' ' + right + ' ' + label);
+	}*/
 
 	public String arithmetic(String a, String b, String target, char op, String type) {
 		String opcode = "";
