@@ -167,7 +167,9 @@ stmt		: assign_stmt | read_stmt | write_stmt | return_stmt | if_stmt | do_stmt;
 assign_stmt	: assign_expr ';';
 assign_expr	: id ':=' expr {
 	//System.out.println("D Assign" + );
-	irTable.add(ir.store($expr.text, $id.text, getType($id.text)));
+	if (getType($id.text) == "INT" || getType($id.text) == "FLOAT") {
+		irTable.add(ir.store($expr.text, $id.text, getType($id.text)));
+	}
 }
 ;
 read_stmt	: 'READ' '(' id_list ')' ';' {
@@ -204,12 +206,15 @@ expr returns [String temp]
 			String result = ir.generate();
 			tempOp = $expr_tail.ops.removeFirst();
 			tempVar = $expr_tail.temp.removeFirst();
+			System.out.println("left: " + left + " tail: " + tempOp + ", " + tempVar);
 			
 			if (tempOp == '+') {
 				irTable.add(ir.arithmetic(left, tempVar, result, '+', getType(tempVar)));
+				symbolTable.add(new mSymbol(result, getType(tempVar)));
 			}
 			else if (tempOp == '-') {
 				irTable.add(ir.arithmetic(left, tempVar, result, '-', getType(tempVar)));
+				symbolTable.add(new mSymbol(result, getType(tempVar)));
 			}
 			left = result;
 		}
@@ -239,9 +244,11 @@ factor returns [String temp]
 		
 			if (tempOp == '*') {
 				irTable.add(ir.arithmetic(left, tempVar, result, '*', getType(tempVar)));
+				symbolTable.add(new mSymbol(result, getType(tempVar)));
 			}			
 			else if (tempOp == '/') {
 				irTable.add(ir.arithmetic(left, tempVar, result, '/', getType(tempVar)));
+				symbolTable.add(new mSymbol(result, getType(tempVar)));
 			}
 			left = result;
 		}
@@ -271,15 +278,18 @@ primary returns [String temp]
 			$temp = $expr.temp;
 		}
 		| id {
+			System.out.println("primary returns " + $id.text);
 			$temp = $id.text;
 		}
 		| INTLITERAL {
 			$temp = ir.generate();
+			System.out.println("Adding " + $temp);
 			symbolTable.add(new mSymbol($temp, "INT"));
 			irTable.add(ir.store($INTLITERAL.text, $temp, "INT"));
 		}
 		| FLOATLITERAL {
 			$temp = ir.generate();
+			System.out.println("Adding " + $temp);
 			symbolTable.add(new mSymbol($temp, "FLOAT"));
 			irTable.add(ir.store($FLOATLITERAL.text, $temp, "FLOAT"));
 		};
