@@ -71,6 +71,7 @@ class assembler {
 				case 3:
 					if (tiny[1].startsWith("$T")) {
 						use = true;
+						registerCounter = varTable.indexOf(tiny[1]);
 						if (varTable.indexOf(tiny[1]) == -1) {
 							varTable.add(tiny[1]);
 							registerCounter = varTable.size() - 1;
@@ -83,6 +84,7 @@ class assembler {
 
 					if (tiny[2].startsWith("$T")) {
 						use = true;
+						registerCounter = varTable.indexOf(tiny[2]);
 						if (varTable.indexOf(tiny[2]) == -1) {
 							varTable.add(tiny[2]);
 							registerCounter = varTable.size() - 1;
@@ -107,6 +109,7 @@ class assembler {
 				case 4:
 					if (tiny[1].startsWith("$T")) {
 						use = true;
+						registerCounter = varTable.indexOf(tiny[1]);
 						if (varTable.indexOf(tiny[1]) == -1) {
 							varTable.add(tiny[1]);
 							registerCounter = varTable.size() - 1;
@@ -118,6 +121,7 @@ class assembler {
 					}
 					if (tiny[2].startsWith("$T")) {
 						use = true;
+						registerCounter = varTable.indexOf(tiny[2]);
 						if (varTable.indexOf(tiny[2]) == -1) {
 							varTable.add(tiny[2]);
 							registerCounter = varTable.size() - 1;
@@ -129,6 +133,7 @@ class assembler {
 					}
 					if (tiny[3].startsWith("$T")) {
 						use = true;
+						registerCounter = varTable.indexOf(tiny[3]);
 						if (varTable.indexOf(tiny[3]) == -1) {
 							varTable.add(tiny[3]);
 							registerCounter = varTable.size() - 1;

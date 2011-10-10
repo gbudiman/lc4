@@ -73,15 +73,15 @@ program 	: 'PROGRAM' id 'BEGIN' {
 	masterTable.add(tms);
 
 	// IR table
-	System.out.println("===================");
+	//System.out.println("===================");
 	Iterator irti = irTable.iterator();
 	while (irti.hasNext()) {
-		System.out.println(irti.next());
+		System.out.println(";" + irti.next());
 	}
 
 	// Symbol table
-	System.out.println("===================");
-	Iterator mti = masterTable.iterator();
+	//System.out.println("===================");
+	/*Iterator mti = masterTable.iterator();
 	while (mti.hasNext()) {
 		msTable cmte = (msTable) mti.next();
 		if (cmte.scope.equals("__global")) {
@@ -102,13 +102,13 @@ program 	: 'PROGRAM' id 'BEGIN' {
 			System.out.println();
 		}
 		System.out.println();
-	}
+	}*/
 	// End Symbol Table
 
 	a.init(masterTable);
 	List<String> tinyOutput = a.process(irTable, false);
 
-	System.out.println("===================");
+	//System.out.println("===================");
 	for (String x: tinyOutput) {
 		System.out.println(x);
 	}
