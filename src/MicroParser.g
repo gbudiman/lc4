@@ -31,10 +31,11 @@ grammar MicroParser;
 	public List<mSymbol> symbolTable = new Vector<mSymbol>();
 	public List<String> irTable = new Vector<String>();
 	public msTable tms = new msTable("__global");
+	public assembler a = new assembler();
 
 	public String getType(String varName) {
 		Iterator mtc = symbolTable.iterator();
-		System.out.println("Searching for " + varName);
+		//System.out.println("Searching for " + varName);
 		while (mtc.hasNext()) {
 			mSymbol ese = (mSymbol) mtc.next();
 			if (ese.getName().equals(varName)) {
@@ -43,7 +44,7 @@ grammar MicroParser;
 		}
 
 		Iterator mti = masterTable.iterator();
-		System.out.println("Searching global for " + varName);
+		//System.out.println("Searching global for " + varName);
 		while (mti.hasNext()) {
 			msTable cmte = (msTable) mti.next();
 			if (cmte.scope.equals("__global")) {
@@ -63,13 +64,16 @@ grammar MicroParser;
 	}
 }
 /* Program */
-program 	: 'PROGRAM' id 'BEGIN' pgm_body 'END'
+program 	: 'PROGRAM' id 'BEGIN' {
+			irTable.add(ir.generateLabel("main"));
+		} 
+		pgm_body 'END'
 {
 	tms.attachTable(symbolTable);
 	masterTable.add(tms);
 
 	// IR table
-	System.out.println("===================\nIR Table");
+	System.out.println("===================");
 	Iterator irti = irTable.iterator();
 	while (irti.hasNext()) {
 		System.out.println(irti.next());
@@ -100,6 +104,14 @@ program 	: 'PROGRAM' id 'BEGIN' pgm_body 'END'
 		System.out.println();
 	}
 	// End Symbol Table
+
+	a.init(masterTable);
+	List<String> tinyOutput = a.process(irTable);
+
+	System.out.println("===================");
+	for (String x: tinyOutput) {
+		System.out.println(x);
+	}
 
 };
 id		: IDENTIFIER;
@@ -166,9 +178,9 @@ stmt		: assign_stmt | read_stmt | write_stmt | return_stmt | if_stmt | do_stmt;
 /* Basic Statement */
 assign_stmt	: assign_expr ';';
 assign_expr	: id ':=' expr {
-	//System.out.println("D Assign" + );
-	if (getType($id.text) == "INT" || getType($id.text) == "FLOAT") {
-		irTable.add(ir.store($expr.text, $id.text, getType($id.text)));
+	//System.out.println($id.text + ", " + $expr.temp);
+	if (getType($id.text).equals("INT") || getType($id.text).equals("FLOAT")) {
+		irTable.add(ir.store($expr.temp, $id.text, getType($id.text)));
 	}
 }
 ;
@@ -201,6 +213,7 @@ expr returns [String temp]
 		char tempOp;
 		String tempVar;
 		String left = $factor.temp;
+		System.out.println("xl: " + left);
 
 		while(!$expr_tail.ops.isEmpty()) {
 			String result = ir.generate();
@@ -218,6 +231,7 @@ expr returns [String temp]
 			}
 			left = result;
 		}
+		//System.out.println("returning: " + left);
 		$temp = left;
 		};
 expr_tail returns [LinkedList<Character> ops, LinkedList<String> temp]
@@ -278,18 +292,15 @@ primary returns [String temp]
 			$temp = $expr.temp;
 		}
 		| id {
-			System.out.println("primary returns " + $id.text);
 			$temp = $id.text;
 		}
 		| INTLITERAL {
 			$temp = ir.generate();
-			System.out.println("Adding " + $temp);
 			symbolTable.add(new mSymbol($temp, "INT"));
 			irTable.add(ir.store($INTLITERAL.text, $temp, "INT"));
 		}
 		| FLOATLITERAL {
 			$temp = ir.generate();
-			System.out.println("Adding " + $temp);
 			symbolTable.add(new mSymbol($temp, "FLOAT"));
 			irTable.add(ir.store($FLOATLITERAL.text, $temp, "FLOAT"));
 		};

@@ -9,7 +9,11 @@ class IntermediateRepresentation {
 	}
 	
 	public String generateLabel() {
-		return ("label" + (j++));
+		return ("LABEL" + (j++));
+	}
+
+	public String generateLabel(String l) {
+		return ("LABEL " + l);
 	}
 
 	/*public String conditional(String left, String op, String right, String label, String type) {
