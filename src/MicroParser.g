@@ -106,7 +106,7 @@ program 	: 'PROGRAM' id 'BEGIN' {
 	// End Symbol Table
 
 	a.init(masterTable);
-	List<String> tinyOutput = a.process(irTable);
+	List<String> tinyOutput = a.process(irTable, false);
 
 	System.out.println("===================");
 	for (String x: tinyOutput) {
