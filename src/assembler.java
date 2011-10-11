@@ -64,7 +64,7 @@ class assembler {
 					else if (tiny[0].equals("WRITEI")) {
 						tinyTable.add("sys writei " + tiny[1]);
 					}
-					else if (tiny[0].equals("WRITER")) {
+					else if (tiny[0].equals("WRITEF")) {
 						tinyTable.add("sys writer " + tiny[1]);
 					}
 				break;
