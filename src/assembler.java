@@ -53,7 +53,9 @@ class assembler {
 					}
 					else if (tiny[0].equals("LABEL")) {
 						tinyTable.add("label " + tiny[1]);
-						tinyTable.add("link 0");
+						if (!tiny[1].startsWith("LABEL")) {
+							tinyTable.add("link 0");
+						}
 					}
 					else if (tiny[0].equals("READI")) {
 						tinyTable.add("sys readi " + tiny[1]);

@@ -32,6 +32,7 @@ grammar MicroParser;
 	public List<String> irTable = new Vector<String>();
 	public msTable tms = new msTable("__global");
 	public assembler a = new assembler();
+	public Stack<String> labelStack = new Stack<String>();
 
 	public String getType(String varName) {
 		Iterator mtc = symbolTable.iterator();
@@ -213,22 +214,16 @@ expr returns [String temp]
 		char tempOp;
 		String tempVar;
 		String left = $factor.temp;
-		System.out.println("xl: " + left);
+		//System.out.println("xl: " + left);
 
 		while(!$expr_tail.ops.isEmpty()) {
 			String result = ir.generate();
 			tempOp = $expr_tail.ops.removeFirst();
 			tempVar = $expr_tail.temp.removeFirst();
-			System.out.println("left: " + left + " tail: " + tempOp + ", " + tempVar);
+			//System.out.println("left: " + left + " tail: " + tempOp + ", " + tempVar);
 			
-			if (tempOp == '+') {
-				irTable.add(ir.arithmetic(left, tempVar, result, '+', getType(tempVar)));
-				symbolTable.add(new mSymbol(result, getType(tempVar)));
-			}
-			else if (tempOp == '-') {
-				irTable.add(ir.arithmetic(left, tempVar, result, '-', getType(tempVar)));
-				symbolTable.add(new mSymbol(result, getType(tempVar)));
-			}
+			irTable.add(ir.arithmetic(left, tempVar, result, tempOp, getType(tempVar)));
+			symbolTable.add(new mSymbol(result, getType(tempVar)));
 			left = result;
 		}
 		//System.out.println("returning: " + left);
@@ -256,14 +251,8 @@ factor returns [String temp]
 			tempOp = $factor_tail.ops.removeFirst();
 			tempVar = $factor_tail.temp.removeFirst();
 		
-			if (tempOp == '*') {
-				irTable.add(ir.arithmetic(left, tempVar, result, '*', getType(tempVar)));
-				symbolTable.add(new mSymbol(result, getType(tempVar)));
-			}			
-			else if (tempOp == '/') {
-				irTable.add(ir.arithmetic(left, tempVar, result, '/', getType(tempVar)));
-				symbolTable.add(new mSymbol(result, getType(tempVar)));
-			}
+			irTable.add(ir.arithmetic(left, tempVar, result, tempOp, getType(tempVar)));
+			symbolTable.add(new mSymbol(result, getType(tempVar)));
 			left = result;
 		}
 		$temp = left;
@@ -309,9 +298,18 @@ addop returns [char op]
 mulop returns [char op]
 		: '*' {$op = '*';} | '/' {$op = '/';};
 /* Comples Statemens and Condition */
-if_stmt 	: 'IF' '(' cond ')' 'THEN' stmt_list else_part 'ENDIF';
-else_part	: 'ELSE' stmt_list | ;
-cond 		: expr compop expr;
+if_stmt 	: 'IF' '(' cond ')' 'THEN' stmt_list else_part 'ENDIF' {irTable.add(ir.label(labelStack.pop())); };
+else_part	: 'ELSE' {
+			String nextLabel = labelStack.pop();
+			irTable.add(ir.jump(labelStack.peek())); 
+			irTable.add(ir.label(nextLabel));
+		} stmt_list | { irTable.add(ir.label(labelStack.pop())); };
+cond 		: l1=expr compop l2=expr {
+			labelStack.push(ir.generateLabel());
+			String nLabel = ir.generateLabel();
+			labelStack.push(nLabel);
+			irTable.add(ir.comparison($l1.temp, $l2.temp, $compop.text, nLabel));
+		};
 compop		: '<' | '>' | '=' | '!=';
 do_stmt		: 'DO' stmt_list 'WHILE' '(' cond ')' ';';
 

@@ -82,8 +82,8 @@ class IntermediateRepresentation {
 	public String comparison(String a, String b, String op, String target) {
 		String opcode = "";
 
-		if (op.equals(">")) { opcode += "GE"; }
-		else if (op.equals("<")) { opcode += "LE"; }
+		if (op.equals("<")) { opcode += "GE"; }
+		else if (op.equals(">")) { opcode += "LE"; }
 		else if (op.equals("!=")) { opcode += "NE"; }
 
 		return (opcode + ' ' + a + ' ' + b + ' ' + target);
