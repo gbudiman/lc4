@@ -184,17 +184,41 @@ class assembler {
 							default: tinyTable.add("Unrecognized datatype");
 						}
 					}
-					else if (tiny[0].equals("GE")) {
-						tinyTable.add("cmpi " + t1 + " " + t4);
+					else if (tiny[0].startsWith("GE")) {
+						if (tiny[0].equals("GEF")) {
+							tinyTable.add("cmpr " + t1 + " " + t4);
+						}
+						else {
+							tinyTable.add("cmpi " + t1 + " " + t4);
+						}
 						tinyTable.add("jge " + t3);
 					}
-					else if (tiny[0].equals("LE")) {
-						tinyTable.add("cmpi " + t1 + " " + t4);
+					else if (tiny[0].startsWith("LE")) {
+						if (tiny[0].equals("LEF")) {
+							tinyTable.add("cmpr " + t1 + " " + t4);
+						}
+						else {
+							tinyTable.add("cmpi " + t1 + " " + t4);
+						}
 						tinyTable.add("jle " + t3);
 					}
-					else if (tiny[0].equals("NE")) {
-						tinyTable.add("cmpi " + t1 + " " + t4);
+					else if (tiny[0].startsWith("NE")) {
+						if (tiny[0].equals("NEF")) {
+							tinyTable.add("cmpr " + t1 + " " + t4);
+						}
+						else {
+							tinyTable.add("cmpi " + t1 + " " + t4);
+						}
 						tinyTable.add("jne " + t3);
+					}
+					else if (tiny[0].startsWith("EQ")) {
+						if (tiny[0].equals("EQF")) {
+							tinyTable.add("cmpr " + t1 + " " + t4);
+						}
+						else {
+							tinyTable.add("cmpi " + t1 + " " + t4);
+						}
+						tinyTable.add("jeq " + t3);
 					}
 				break;
 			}

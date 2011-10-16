@@ -308,7 +308,7 @@ cond 		: l1=expr compop l2=expr {
 			labelStack.push(ir.generateLabel());
 			String nLabel = ir.generateLabel();
 			labelStack.push(nLabel);
-			irTable.add(ir.comparison($l1.temp, $l2.temp, $compop.text, nLabel));
+			irTable.add(ir.comparison($l1.temp, $l2.temp, $compop.text, nLabel, getType($l1.temp)));
 		};
 compop		: '<' | '>' | '=' | '!=';
 do_stmt		: 'DO' stmt_list 'WHILE' '(' cond ')' ';';

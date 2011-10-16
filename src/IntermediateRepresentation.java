@@ -79,13 +79,17 @@ class IntermediateRepresentation {
 		return null;
 	}
 
-	public String comparison(String a, String b, String op, String target) {
+	public String comparison(String a, String b, String op, String target, String type) {
 		String opcode = "";
 
 		if (op.equals("<")) { opcode += "GE"; }
 		else if (op.equals(">")) { opcode += "LE"; }
-		else if (op.equals("!=")) { opcode += "NE"; }
+		else if (op.equals("!=")) { opcode += "EQ"; }
+		else if (op.equals("=")) { opcode += "NE"; }
 
+		if (type.equals("FLOAT")) {
+			opcode += "F";
+		}
 		return (opcode + ' ' + a + ' ' + b + ' ' + target);
 	}
 
