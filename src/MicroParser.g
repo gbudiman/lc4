@@ -311,7 +311,18 @@ cond 		: l1=expr compop l2=expr {
 			irTable.add(ir.comparison($l1.temp, $l2.temp, $compop.text, nLabel, getType($l1.temp)));
 		};
 compop		: '<' | '>' | '=' | '!=';
-do_stmt		: 'DO' stmt_list 'WHILE' '(' cond ')' ';';
+do_stmt		: 'DO' {
+			String lLabel = ir.generateLabel();
+			labelStack.push(lLabel);
+			irTable.add(ir.label(lLabel));
+		}
+	 	stmt_list 'WHILE' '(' cond ')' ';' {
+			String loopBack = labelStack.pop();
+			String unused = labelStack.pop();
+			String loopExit = labelStack.pop();
+			irTable.add(ir.jump(loopExit));
+			irTable.add(ir.label(loopBack));
+		};
 
 fragment DIGIT          : '0'..'9';
 fragment LETTER         : 'A'..'Z'|'a'..'z';
