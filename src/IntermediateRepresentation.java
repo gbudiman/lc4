@@ -82,8 +82,18 @@ class IntermediateRepresentation {
 	public String comparison(String a, String b, String op, String target, String type) {
 		String opcode = "";
 
-		if (op.equals("<")) { opcode += "GE"; }
-		else if (op.equals(">")) { opcode += "LE"; }
+		// need to reverse operands if comparing register (comes first) with memory
+		if (a.startsWith("$")) {
+			String temp = a;
+			a = b;
+			b = temp;
+			if (op.equals("<")) { op = ">"; }
+			else if (op.equals(">")) { op = "<"; }
+		}
+		if (op.equals("<")) { opcode += "GEQ"; }
+		else if (op.equals("<=")) { opcode += "GE"; }
+		else if (op.equals(">")) { opcode += "LEQ"; }
+		else if (op.equals(">=")) { opcode += "LE"; }
 		else if (op.equals("!=")) { opcode += "EQ"; }
 		else if (op.equals("=")) { opcode += "NE"; }
 

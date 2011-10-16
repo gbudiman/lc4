@@ -185,22 +185,34 @@ class assembler {
 						}
 					}
 					else if (tiny[0].startsWith("GE")) {
-						if (tiny[0].equals("GEF")) {
+						if (tiny[0].equals("GEF") || tiny[0].equals("GEQF")) {
 							tinyTable.add("cmpr " + t1 + " " + t4);
 						}
 						else {
 							tinyTable.add("cmpi " + t1 + " " + t4);
 						}
-						tinyTable.add("jge " + t3);
+
+						if (tiny[0].startsWith("GEQ")) {
+							tinyTable.add("jge " + t3);
+						}
+						else {
+							tinyTable.add("jgt " + t3);
+						}
 					}
 					else if (tiny[0].startsWith("LE")) {
-						if (tiny[0].equals("LEF")) {
+						if (tiny[0].equals("LEF") || tiny[0].equals("LEQF")) {
 							tinyTable.add("cmpr " + t1 + " " + t4);
 						}
 						else {
 							tinyTable.add("cmpi " + t1 + " " + t4);
 						}
-						tinyTable.add("jle " + t3);
+
+						if (tiny[0].startsWith("LEQ")) {
+							tinyTable.add("jle " + t3);
+						}
+						else {
+							tinyTable.add("jlt " + t3);
+						}
 					}
 					else if (tiny[0].startsWith("NE")) {
 						if (tiny[0].equals("NEF")) {
